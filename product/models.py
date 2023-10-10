@@ -55,7 +55,7 @@ class ProductPrice(models.Model):
     p_id = models.ForeignKey(Product, on_delete=models.PROTECT, db_index=True, verbose_name=_('product'))
     pp_price = models.PositiveIntegerField(db_index=True, verbose_name=_('price'))
     pp_is_active = models.BooleanField(default=True, verbose_name=_('is active'))
-    pp_date_time = models.DateTimeField(auto_now=True, auto_now_add=True, verbose_name=_('date and time'))
+    pp_date_time = models.DateTimeField(auto_now_add=True, verbose_name=_('date and time'))
     pp_update_time = models.DateTimeField(auto_now=True, verbose_name=_('update time'))
 
     def __str__(self):
