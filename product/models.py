@@ -38,7 +38,7 @@ class Unit(models.Model):
 class Product(models.Model):
     p_name = models.CharField(max_length=100, db_index=True, verbose_name=_('name'))
     P_description = models.TextField(verbose_name=_('description'), blank=True, null=True),
-    image = models.ImageField(upload_to='/product/images/', verbose_name='image', blank=True, null=True)
+    image = models.ImageField(upload_to='product/images/', verbose_name='image', blank=True, null=True)
     pt_id = models.ForeignKey(ProductType, on_delete=models.PROTECT, verbose_name=_('product type'), db_index=True)
     d_id = models.ForeignKey(Degree, on_delete=models.PROTECT, verbose_name=_('degree'), db_index=True)
     un_id = models.ForeignKey(Unit, on_delete=models.PROTECT, verbose_name=_('Unit'))
