@@ -50,10 +50,13 @@ INSTALLED_APPS = [
 
     'product',
     'user',
+<<<<<<< HEAD
     'invoice_entry',
     'invoice_sales',
     'invoice_customer',
+=======
     'feedback',
+>>>>>>> develop
 ]
 
 MIDDLEWARE = [
