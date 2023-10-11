@@ -142,3 +142,9 @@ AUTH_USER_MODEL = 'user.User'  # app.custom_user
 
 MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = 'media/'
+
+# swagger
+SWAGGER_SETTINGS = {
+        'LOGIN_URL': '/api-auth/login/',
+        'LOGOUT_URL': '/api-auth/logout/',
+}
