@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
+import redis
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
@@ -174,3 +176,24 @@ SWAGGER_SETTINGS = {
         'LOGIN_URL': '/api-auth/login/',
         'LOGOUT_URL': '/api-auth/logout/',
 }
+
+
+LOCALE_PATHS = (
+    os.path.join(os.path.dirname(__file__), "locale"),
+)
+
+
+# redis jwt token
+REDIS_HOST = config('REDIS_HOST')
+REDIS_PORT = config('REDIS_PORT')
+REDIS_REFRESH_TIME_CHECK_SYSTEM = 365 * (24 * (60 * 60))  # 1 year
+REDIS_REFRESH_TIME = 24 * (60 * 60)
+REDIS_JWT_TOKEN = redis.StrictRedis(host=REDIS_HOST,
+                                    port=REDIS_PORT, db=0)
+
+
+# redis otp code
+
+REDIS_OTP_CODE_TIME = 2 * 60
+REDIS_OTP_CODE = redis.StrictRedis(host=REDIS_HOST,
+                                   port=REDIS_PORT, db=2)
