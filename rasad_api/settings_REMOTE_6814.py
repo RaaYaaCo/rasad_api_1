@@ -50,9 +50,6 @@ INSTALLED_APPS = [
 
     'product',
     'user',
-    'invoice_entry',
-    'invoice_sales',
-    'invoice_customer',
 ]
 
 MIDDLEWARE = [
@@ -153,10 +150,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'user.User'  # app.custom_user
 
 
-<<<<<<< HEAD
-MEDIA_ROOT = BASE_DIR / 'media/'
-MEDIA_URL = 'media/'
-=======
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -208,4 +201,3 @@ REDIS_JWT_TOKEN = redis.StrictRedis(host=REDIS_HOST,
 REDIS_OTP_CODE_TIME = 2 * 60
 REDIS_OTP_CODE = redis.StrictRedis(host=REDIS_HOST,
                                    port=REDIS_PORT, db=2)
->>>>>>> develop
