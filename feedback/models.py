@@ -39,7 +39,7 @@ class Complaint(models.Model):
     u_customer_id = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name=_('customer id'), related_name='complaints_as_customer')
     u_store_id = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name=_('store id'))
     c_title = models.CharField(max_length=200, db_index=True, verbose_name=_('title'))
-    c_body = models.CharField(max_length=200, verbose_name=_('body'))
+    c_body = models.TextField(verbose_name=_('body'))
     c_id_read_by_admin = models.BooleanField(default=False, db_index=True, verbose_name=_('read by admin'))
     c_admin_id = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, verbose_name=_('admin id'), related_name='complaints_as_admin')
     c_response_admin = models.CharField(max_length=200, blank=True, null=True, verbose_name=_('admin response'))
