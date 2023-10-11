@@ -4,16 +4,15 @@ from .models import InvoiceCustomer, InvoiceCustomerItem, ProductEntity
 # Register your models here.
 
 
-@admin.register(InvoiceCustomerItem)
-class InvoiceCustomerItemAdmin(admin.ModelAdmin):
-    list_display = ['p_id', 'iei_weight']
+class InvoiceCustomerItemAdmin(admin.TabularInline):
+    model = InvoiceCustomerItem
     raw_id_fields = ('p_id',)
 
 
 @admin.register(InvoiceCustomer)
 class InvoiceCustomerAdmin(admin.ModelAdmin):
     list_display = ['u_store_id', 'u_customer_id', 'ic_date_time']
-    inlines = (InvoiceCustomerItem,)
+    inlines = (InvoiceCustomerItemAdmin,)
 
 
 @admin.register(ProductEntity)

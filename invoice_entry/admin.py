@@ -4,9 +4,8 @@ from .models import InvoiceEntry, InvoiceEntryItem
 # Register your models here.
 
 
-@admin.register(InvoiceEntryItem)
-class InvoiceEntryItemAdmin(admin.ModelAdmin):
-    list_display = ['p_id', 'iei_weight']
+class InvoiceEntryItemAdmin(admin.TabularInline):
+    model = InvoiceEntryItem
     raw_id_fields = ('p_id',)
 
 

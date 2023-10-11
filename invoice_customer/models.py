@@ -10,12 +10,20 @@ from user.models import User
 
 
 class InvoiceCustomer(models.Model):
-    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_('store'))
-    u_customer_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_('customer'))
+    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT,
+                                   db_index=True,
+                                   verbose_name=_('store'),
+                                   related_name='storeCustomer'
+                                   )
+    u_customer_id = models.ForeignKey(User, on_delete=models.PROTECT,
+                                      db_index=True,
+                                      verbose_name=_('customer'),
+                                      related_name='customerInvoiceCustomer'
+                                      )
     ic_date_time = models.DateTimeField(auto_now_add=True, verbose_name=_('date time'))
 
     def __str__(self):
-        return f'{self.u_store_id} / {self.u_customer_id}'
+        return f'{self.u_store_id.u_phone_number} / {self.u_customer_id.u_phone_number}'
 
     class Meta:
         verbose_name = _('Invoice Customer')
@@ -29,14 +37,18 @@ class InvoiceCustomerItem(models.Model):
     pp_id = models.ForeignKey(ProductPrice, on_delete=models.PROTECT, verbose_name=_('Product Price'))
 
     def __str__(self):
-        return self.p_id
+        return self.p_id.p_name
 
     class Meta:
         verbose_name = _('Invoice Customer Item')
 
 
 class ProductEntity(models.Model):
-    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_('store'))
+    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT,
+                                   db_index=True,
+                                   verbose_name=_('store'),
+                                   related_name='storeProductEntity'
+                                   )
     isi_is = models.ForeignKey(InvoiceSales, on_delete=models.PROTECT, db_index=True, verbose_name=_('Invoice Sales'))
     p_id = models.ForeignKey(Product, on_delete=models.PROTECT, verbose_name=_('product'))
     isi_price = models.PositiveIntegerField(verbose_name=_('Invoice Sales price'))
@@ -47,7 +59,7 @@ class ProductEntity(models.Model):
     pe_update_time = models.DateTimeField(auto_now_add=True, verbose_name=_('update time'))
 
     def __str__(self):
-        return f'{self.u_store_id} / {self.p_id} / {self.pe_weight}'
+        return f'{self.u_store_id.u_phone_number} / {self.p_id.p_name} / {self.pe_weight}'
 
     class Meta:
         verbose_name = _('Product Entity')

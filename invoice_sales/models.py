@@ -9,12 +9,20 @@ from user.models import User
 
 
 class InvoiceSales(models.Model):
-    u_wholesaler_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_('wholesaler'))
-    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_('store'))
+    u_wholesaler_id = models.ForeignKey(User, on_delete=models.PROTECT,
+                                        db_index=True,
+                                        verbose_name=_('wholesaler'),
+                                        related_name='wholesalerSales'
+                                        )
+    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT,
+                                   db_index=True,
+                                   verbose_name=_('store'),
+                                   related_name='storeSales'
+                                   )
     is_date_time = models.DateTimeField(auto_now_add=True, verbose_name=_('date time'))
 
     def __str__(self):
-        return f'{self.u_store_id} / {self.u_wholesaler_id}'
+        return f'{self.u_store_id.u_phone_number} / {self.u_wholesaler_id.u_phone_number}'
 
     class Meta:
         verbose_name = _('Invoice Sales')
@@ -28,7 +36,7 @@ class InvoiceSalesItem(models.Model):
     pp_id = models.ForeignKey(ProductPrice, on_delete=models.CASCADE, verbose_name=_('product price'))
 
     def __str__(self):
-        return {self.p_id}
+        return self.p_id.p_name
 
     class Meta:
         verbose_name = _('Invoice Sales Item')
