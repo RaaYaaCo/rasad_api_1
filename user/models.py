@@ -1,5 +1,10 @@
-from django.contrib.auth.models import AbstractUser, UserManager
+import warnings
+
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils.crypto import get_random_string
+from django.utils.deprecation import RemovedInDjango51Warning
 from django.utils.translation import gettext as _
 from django.contrib.gis.db import models as model
 
@@ -32,10 +37,27 @@ class UserProfile(models.Model):
         verbose_name_plural = _("User Profiles")
 
 
-class MyUserManager(UserManager):
+class MyUserManager(BaseUserManager):
     """
         Creating a new user manager for our customized django user.
     """
+
+    def make_random_password(
+        self,
+        length=10,
+        allowed_chars="abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789",
+    ):
+        """
+        Generate a random password with the given length and given
+        allowed_chars. The default value of allowed_chars does not have "I" or
+        "O" or letters and digits that look similar -- just to avoid confusion.
+        """
+        warnings.warn(
+            "BaseUserManager.make_random_password() is deprecated.",
+            category=RemovedInDjango51Warning,
+            stacklevel=2,
+        )
+        return get_random_string(length, allowed_chars)
 
     def create_superuser(self, username='admin', email=None, password=None, **extra_fields):
         # username = extra_fields['email']
@@ -43,6 +65,7 @@ class MyUserManager(UserManager):
 
     def create_user(self, username='admin', email=None, password=None, **extra_fields):
         # username = extra_fields['email']
+        password_validation.password_changed(password)
         return super().create_superuser(username, email, password, **extra_fields)
 
 
@@ -57,6 +80,7 @@ class User(AbstractUser):
     objects = MyUserManager()
 
     def save(self, *args, **kwargs):
+        self.password = make_password(self.password)
         super().save(*args, **kwargs)
 
     def __str__(self):
