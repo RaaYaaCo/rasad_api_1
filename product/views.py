@@ -57,7 +57,7 @@ class DegreeView(CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class DegreeDetailView(CreateAPIView):
+class DegreeDetailView(RetrieveUpdateAPIView):
     serializer_class = DegreeSerializer
     queryset = Degree.objects.all()
 
@@ -89,7 +89,7 @@ class UnitView(CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class UnitDetailView(CreateAPIView):
+class UnitDetailView(RetrieveUpdateAPIView):
     serializer_class = UnitSerializer
     queryset = Unit.objects.all()
 
@@ -129,24 +129,27 @@ class ProductView(ListCreateAPIView):
             return Response({'msg': _('you can not register a product with the same name and degree')})
 
 
-class ProductDetailView(ListCreateAPIView):
+class ProductDetailView(RetrieveUpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
-    lookup_field = 'p_slug'
+    lookup_field = "p_slug"
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request: Request, *args, **kwargs):
         translate(request)
         instance = self.get_object()
         serializer = self.serializer_class(instance)
         return Response(serializer.data, status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args, **kwargs):
         translate(request)
         instance = self.get_object()
         serializer = self.serializer_class(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_200_OK)
+        try:
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+        except:
+            return Response({'msg': _('you can not register a product with the same name and degree')})
 
 
 class ProductPriceView(GenericAPIView):
