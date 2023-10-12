@@ -25,3 +25,7 @@ def check_phone(value: str) -> str:
         return "0" + value[3:]
 
     raise ValidationError(_('The phone number is not valid'))
+
+
+def isnumeric(value: str) -> bool:
+    return value.isnumeric()
