@@ -11,5 +11,6 @@ urlpatterns = [
     path('unit/detail/<int:id>', views.UnitDetailView.as_view(), name='unit-detail'),
     path('add/', views.ProductView.as_view(), name='product'),
     re_path('detail/(?P<slug>[^/]+)/?$', views.ProductDetailView.as_view(), name='product-detail'),
+    path('price/', views.ProductPriceView.as_view(), name='product-price')
 
 ]

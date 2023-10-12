@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, GenericAPIView, RetrieveUpdateAPIView
@@ -6,9 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from core.utils import translate
-from .serializers import ProductTypeSerializers, UnitSerializer,\
-                         DegreeSerializer, ProductSerializers
-from .models import ProductType, Degree, Unit, Product
+from .serializers import ProductTypeSerializers, UnitSerializer, \
+    DegreeSerializer, ProductSerializers, ProductPriceSerializer
+from .models import ProductType, Degree, Unit, Product, ProductPrice
 
 
 class ProductTypeView(CreateAPIView):
@@ -140,3 +141,25 @@ class ProductDetailView(ListCreateAPIView):
         serializer.save()
         return Response(serializer.data, status.HTTP_200_OK)
 
+
+class ProductPriceView(GenericAPIView):
+    serializer_class = ProductPriceSerializer
+    queryset = ProductPrice.objects.get()
+
+    def get(self, request: Request):
+        instance = ProductPrice.objects.all()
+        serializer = self.serializer_class(instance=instance, many=True)
+
+    def post(self, request: Request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            try:
+                pervious_product_price = ProductPrice.objects.get(p_id=serializer.validated_data['p_id'], pp_is_active=True)
+                pervious_product_price.pp_is_active = True
+                pervious_product_price.save()
+                serializer.save()
+                return Response(data={'data': serializer.data, 'msg': _('new price registered')})
+
+            except ObjectDoesNotExist:
+                serializer.save()
+                return Response(data={'data': serializer.data, 'msg': _('new price registered')})
