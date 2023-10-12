@@ -149,6 +149,7 @@ class ProductPriceView(GenericAPIView):
     def get(self, request: Request):
         instance = ProductPrice.objects.all()
         serializer = self.serializer_class(instance=instance, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request: Request):
         serializer = self.serializer_class(data=request.data)
@@ -158,8 +159,10 @@ class ProductPriceView(GenericAPIView):
                 pervious_product_price.pp_is_active = True
                 pervious_product_price.save()
                 serializer.save()
-                return Response(data={'data': serializer.data, 'msg': _('new price registered')})
+                return Response(data={'data': serializer.data, 'msg': _('new price registered')},
+                                status=status.HTTP_201_CREATED)
 
             except ObjectDoesNotExist:
                 serializer.save()
-                return Response(data={'data': serializer.data, 'msg': _('new price registered')})
+                return Response(data={'data': serializer.data, 'msg': _('new price registered')},
+                                status=status.HTTP_201_CREATED)
