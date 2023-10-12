@@ -2,18 +2,18 @@ version: '3.7'
 
 services: 
 #Redis-----------------------------------------------------------------------------------------
-    online-food-redis:
+    rasad-api-redis:
         image: redis:latest
-        container_name: online_food_redis
-        hostname: online_food_redis
+        container_name: rasad_api_redis
+        hostname: rasad_api_redis
         env_file:
             - .env
         ports:
             - "6379:6379"
         volumes:
-            - online_food_redis_data:/data
+            - rasad_api_redis_data:/data
         networks:
-            - online_food
+            - rasad_api
         # command: ["sh", "-c", "rm -f /data/dump.rdb && redis-server --save '' --appendonly no --requirepass $PASSWORD_REDIS"]
         command: ["sh", "-c", "rm -f /data/dump.rdb && redis-server --save '' --appendonly no "]
         restart: on-failure
@@ -41,56 +41,56 @@ services:
     
 
 #Postgres-----------------------------------------------------------------------------------------
-    online-food-postgres:
+    rasad-api-postgres:
         image: postgis/postgis:latest
-        container_name: online_food_postgresql
-        hostname: online_food_postgresql
+        container_name: rasad_api_postgresql
+        hostname: rasad_api_postgresql
         environment: 
-            - POSTGRES_DB=online_food_db
-            - POSTGRES_USER=online_food_user
+            - POSTGRES_DB=rasad_api_db
+            - POSTGRES_USER=rasad_api_user
             - POSTGRES_PASSWORD=hdfjhsfhsdfg
         ports:
             - "5432:5432"
         volumes:
-            - online_food_postgresql_data:/var/lib/postgresql/data
+            - rasad_api_postgresql_data:/var/lib/postgresql/data
         networks:
-            - online_food
+            - rasad_api
         restart: on-failure
 
 #API-----------------------------------------------------------------------------------------
-    online-food-api:
-        image: online-food-api:latest
-        container_name: online_food_api
-        hostname: online_food_api
+    rasad-api:
+        image: rasad-api:latest
+        container_name: rasad_api
+        hostname: rasad_api
         depends_on: 
-            - online-food-postgres
-            - online-food-redis
+            - rasad-api-postgres
+            - rasad-api-redis
         ports:
             - "8088:8088"
         # command: ["ping", "8.8.8.8"]
         env_file: 
             - .env
         volumes:
-            - online_food_media_data:/app/media
-            - online_food_static_data:/app/static
+            - rasad_api_media_data:/app/media
+            - rasad_api_static_data:/app/static
         networks:
-            - online_food
+            - rasad_api
         restart: on-failure
 
 
 
 volumes: 
-    online_food_media_data:
+    rasad_api_media_data:
         external: true
-    online_food_static_data:
+    rasad_api_static_data:
         external: true
-    online_food_postgresql_data:
+    rasad_api_postgresql_data:
         external: true
-    online_food_redis_data:
+    rasad_api_redis_data:
         external: true
           
 
 networks:
-    online_food:
+    rasad_api:
         external: true
-        name: online_food_net
+        name: rasad_api_net
