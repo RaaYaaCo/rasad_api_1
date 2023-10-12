@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserType, UserProfile, User
+from .models import UserType, Store, User
 
 # Register your models here.
 
@@ -9,9 +9,9 @@ class UserTypeAdmin(admin.ModelAdmin):
     list_display = ['ut_title']
 
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['up_address', 'up_post_code']
+@admin.register(Store)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ['s_name', 's_license', 's_address', 's_postal_code']
 
 
 @admin.register(User)
