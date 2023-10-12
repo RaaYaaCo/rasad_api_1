@@ -26,6 +26,8 @@ from core.utils import schema_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/product/',include('product.urls')),
+    path('api/user/', include('user.urls', namespace='user')),
     path('api/feedback/', include('feedback.urls')),
 
 

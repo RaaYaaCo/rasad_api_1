@@ -50,6 +50,9 @@ INSTALLED_APPS = [
 
     'product',
     'user',
+    'invoice_entry',
+    'invoice_sales',
+    'invoice_customer',
     'feedback',
 ]
 

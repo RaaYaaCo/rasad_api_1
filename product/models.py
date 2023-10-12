@@ -42,9 +42,15 @@ class Product(models.Model):
     pt_id = models.ForeignKey(ProductType, on_delete=models.PROTECT, verbose_name=_('product type'), db_index=True)
     d_id = models.ForeignKey(Degree, on_delete=models.PROTECT, verbose_name=_('degree'), db_index=True)
     un_id = models.ForeignKey(Unit, on_delete=models.PROTECT, verbose_name=_('Unit'))
+    p_slug = models.CharField(max_length=100, db_index=True, verbose_name=_('slug'), unique=True, blank=True)
 
     def __str__(self):
         return f'{self.p_name} / {self.d_id}'
+
+    def save(self, *args, **kwargs):
+        slug = self.p_name + '-' + self.d_id.d_title
+        self.p_slug = slug.replace(' ', '-')
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Product')
