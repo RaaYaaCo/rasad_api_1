@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 app_name = 'product'
@@ -10,5 +10,6 @@ urlpatterns = [
     path('unit/', views.UnitView.as_view(), name='unit'),
     path('unit/detail/<int:id>', views.UnitDetailView.as_view(), name='unit-detail'),
     path('add/', views.ProductView.as_view(), name='product'),
-    path('detail/<int:id>', views.ProductDetailView.as_view(), name='product-detail'),
+    re_path('detail/(?P<slug>[^/]+)/?$', views.ProductDetailView.as_view(), name='product-detail'),
+
 ]

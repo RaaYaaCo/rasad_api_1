@@ -107,6 +107,7 @@ class UnitDetailView(CreateAPIView):
 class ProductView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
+    filterset_fields = ['p_name', 'pt_id', 'd_id']
 
     def list(self, request: Request, *args, **kwargs):
         instance = self.get_queryset()
@@ -123,6 +124,7 @@ class ProductView(ListCreateAPIView):
 class ProductDetailView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
+    lookup_field = 'p_slug'
 
     def retrieve(self, request, *args, **kwargs):
         translate(request)
