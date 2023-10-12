@@ -50,6 +50,7 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         slug = self.p_name + '-' + self.d_id.d_title
         self.p_slug = slug.replace(' ', '-')
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _('Product')
