@@ -17,5 +17,30 @@ class StoreView(generics.ListAPIView):
 
     def list(self, request: Request, *args, **kwargs):
         translate(request)
-        super().list(request, *args, **kwargs)
+        instance = self.queryset.all()
+        serializer = self.serializer_class(instance=instance, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class StoreSearchView(generics.GenericAPIView):
+    serializer_class = StoreSearchSerializer
+    queryset = Store.objects.filter
+
+    def post(self, request: Request, *args, **kwargs):
+        translate(request)
+        instance = self.queryset(s_name__contains=request.data['search'])
+        serializer = StoreSerializer(instance, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class StoreDetailView(generics.RetrieveAPIView):
+    serializer_class = StoreSerializer
+    queryset = Store.objects.all()
+    lookup_field = 's_slug'
+
+    def retrieve(self, request: Request, *args, **kwargs):
+        translate(request)
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data, status.HTTP_200_OK)
 
