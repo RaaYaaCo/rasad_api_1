@@ -23,6 +23,11 @@ class UserIdSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
 
 
+class RatingViewSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    store_id = serializers.IntegerField()
 
 
-
+class ComplaintDetailSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    store_id = serializers.IntegerField()
