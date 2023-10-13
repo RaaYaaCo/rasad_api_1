@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/product/',include('product.urls')),
     path('api/user/', include('user.urls', namespace='user')),
     path('api/feedback/', include('feedback.urls')),
+    path('api/store/', include('store.urls')),
 
 
     # swagger

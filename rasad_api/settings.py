@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'invoice_sales',
     'invoice_customer',
     'feedback',
+    'store'
 ]
 
 MIDDLEWARE = [

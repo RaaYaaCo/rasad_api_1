@@ -1,11 +1,5 @@
-import warnings
-
-from django.contrib.auth import password_validation
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.utils.crypto import get_random_string
-from django.utils.deprecation import RemovedInDjango51Warning
 from django.utils.translation import gettext as _
 from django.contrib.gis.db import models as model
 
