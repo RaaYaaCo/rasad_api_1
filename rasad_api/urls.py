@@ -18,6 +18,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from setuptools import namespaces
+
 # swagger
 from core.utils import schema_view
 
@@ -26,6 +28,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/product/',include('product.urls')),
     path('api/user/', include('user.urls', namespace='user')),
+    path('api/feedback/', include('feedback.urls')),
 
 
     # swagger

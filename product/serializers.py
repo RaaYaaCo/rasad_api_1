@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ProductType, Unit, Degree, Product
+from .models import ProductType, Unit, Degree, Product, ProductPrice
 
 
 class ProductTypeSerializers(serializers.ModelSerializer):
@@ -27,3 +27,12 @@ class ProductSerializers(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        read_only_fields = ['p_slug']
+
+
+class ProductPriceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductPrice
+        fields = '__all__'
+        read_only_fields = ['pp_is_active']
