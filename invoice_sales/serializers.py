@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import InvoiceSales, InvoiceSalesItem
 from user.serializers import UserSerializer
-from product.serializers import ProductSerializers,
+from product.serializers import ProductSerializers, ProductPriceSerializer
 
 
 class InvoiceSalesAddSerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class InvoiceSalesSerializer(serializers.ModelSerializer):
 
 class InvoiceSalesItemSerializer(serializers.ModelSerializer):
     p_id = ProductSerializers(read_only=True)
-    pp_id =
+    pp_id = ProductPriceSerializer(read_only=True)
 
     class Meta:
         model = InvoiceSalesItem

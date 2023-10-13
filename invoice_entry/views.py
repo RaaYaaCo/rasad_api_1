@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -39,7 +40,7 @@ class InvoiceEntryItemAddView(GenericAPIView):
 
 class InvoiceEntryShowAllView(ListAPIView):
     serializer_class = InvoiceEntrySerializer
-    queryset = InvoiceEntry.objects.all()
+    queryset = InvoiceEntry.objects.all().order_by('-ie_date_time')
 
     def list(self, request, *args, **kwargs):
         serializers = self.serializer_class(self.get_queryset(), many=True)

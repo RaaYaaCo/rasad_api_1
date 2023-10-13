@@ -3,12 +3,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
+from product.models import ProductPrice
 from .serializers import InvoiceSalesSerializer,\
     InvoiceSalesAddSerializer,\
     InvoiceSalesItemSerializer,\
     InvoiceSalesItemAddSerializer
 from .models import InvoiceSales, InvoiceSalesItem
 from core.utils import translate
+from invoice_customer.models import ProductEntity
 
 # Create your views here.
 
@@ -34,12 +36,23 @@ class InvoiceSalesItemAddView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        invoice = InvoiceSales.objects.get(id=serializer.data['is_id'])
+        product_price = ProductPrice.objects.get(id=serializer.data['p_id'])
+        price = product_price.pp_price + (product_price.pp_price * 0.3)
+        ProductEntity.objects.create(
+            u_store_id_id=invoice.u_store_id.id,
+            isi_id_id=invoice.id,
+            p_id_id=serializer.data['p_id'],
+            isi_price=price,
+            sale_price=price,
+            pe_weight=serializer.data['isi_weight'],
+        )
         return Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class InvoiceSalesShowAllView(ListAPIView):
     serializer_class = InvoiceSalesSerializer
-    queryset = InvoiceSales.objects.all()
+    queryset = InvoiceSales.objects.all().order_by('-is_date_time')
 
     def list(self, request, *args, **kwargs):
         serializers = self.serializer_class(self.get_queryset(), many=True)
