@@ -2,7 +2,7 @@ import warnings
 
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.deprecation import RemovedInDjango51Warning
@@ -13,6 +13,8 @@ from .validators import check_phone, isnumeric
 
 # Create your models here.
 
+
+# -------------------------------------------------------------------------------------------------
 
 class UserType(models.Model):
     ut_title = models.CharField(max_length=200, db_index=True, unique=True, verbose_name=_("title"))
@@ -43,9 +45,9 @@ class MyUserManager(UserManager):
 
 class User(AbstractUser):
     USERNAME_FIELD = 'u_phone_number'
-    u_phone_number = models.CharField(max_length=200, db_index=True, unique=True, validators=[check_phone],
+    u_phone_number = models.CharField(max_length=11, db_index=True, unique=True, validators=[check_phone],
                                       verbose_name=_('phone number'))
-    u_code_meli = models.CharField(max_length=10, db_index=True, unique=False, verbose_name=_("code meli"))
+    u_code_meli = models.CharField(max_length=10, db_index=True, unique=True, verbose_name=_("code meli"))
     ut_id = models.ForeignKey(UserType, on_delete=models.PROTECT, blank=True, null=True, verbose_name=_("user type id"))
     objects = MyUserManager()
 
@@ -65,6 +67,7 @@ class User(AbstractUser):
 class Store(models.Model):
     u_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_("User Id"))
     s_name = models.CharField(max_length=200, unique=True, verbose_name=_("Store Name"))
+    s_description = models.TextField(verbose_name=_("Description"), blank=True, null=True)
     s_address = model.TextField(verbose_name=_('Address'))
     s_location = model.GeometryField(geography=True, null=True, blank=True, verbose_name=_('Location'))
     s_postal_code = models.CharField(max_length=200, validators=[isnumeric], verbose_name=_("Postal Code"))
