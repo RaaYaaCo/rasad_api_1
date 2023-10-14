@@ -43,4 +43,3 @@ class StoreDetailView(generics.RetrieveAPIView):
         instance = self.get_object()
         serializer = self.serializer_class(instance)
         return Response(serializer.data, status.HTTP_200_OK)
-
