@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-8z4bmeu3=j#e%b)8u+6jo2_&44)kjyp5d#1pgw5bc!1_*pn09-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_gis',
     'corsheaders',
     'drf_yasg',
     'django_filters',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'invoice_sales',
     'invoice_customer',
     'feedback',
+    'store'
 ]
 
 MIDDLEWARE = [

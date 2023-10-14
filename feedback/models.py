@@ -9,7 +9,7 @@ class Rating(models.Model):
 
 
     def __str__(self):
-        return f'{self.r_title}'
+        return f'{self.r_title}{self.id}'
 
 
     class Meta:
@@ -29,7 +29,7 @@ class RatingStore(models.Model):
 
 
     def __str__(self):
-        return f'{self.u_customer_id}//////{self.r_id}'
+        return f'u_customer_id:{self.u_customer_id.id}/user_id:{self.u_customer_id.id}'
 
 
     class Meta:
@@ -52,12 +52,11 @@ class Complaint(models.Model):
 
 
     def __str__(self):
-        return f'{self.u_customer_id}/////{self.c_title}'
+        return f'customer_id:{self.u_customer_id.id}/store_id:{self.u_store_id.id}'
 
 
     class Meta:
         verbose_name = _('Complaint')
         verbose_name_plural = _('Complaints')
-
 
 
