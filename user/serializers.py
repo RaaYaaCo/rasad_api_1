@@ -41,6 +41,8 @@ class UserSerializer(serializers.ModelSerializer):
                                         password=validated_data['password_1'])
         return user
 
+# ----------------
+
 
 class UserCodeSerializer(serializers.Serializer):
     """
@@ -95,6 +97,8 @@ class WholesalerStoreSerializer(serializers.Serializer):
                                      )
         return store
 
+# -----------------
+
 
 class WholesalerStoreCodeSerializer(serializers.Serializer):
     """
@@ -142,6 +146,8 @@ class OtherSerializer(serializers.ModelSerializer):
                                         password=validated_data['password_1'],
                                         group=validated_data['group'])
         return user
+
+# ----------------
 
 
 class OtherCodeSerializer(serializers.Serializer):

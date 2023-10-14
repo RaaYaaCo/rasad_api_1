@@ -33,7 +33,7 @@ class StoreSearchView(generics.GenericAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class StoreDetailView(generics.RetrieveAPIView):
+class StoreDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = StoreSerializer
     queryset = Store.objects.all()
     lookup_field = 's_slug'
@@ -44,3 +44,10 @@ class StoreDetailView(generics.RetrieveAPIView):
         serializer = self.serializer_class(instance)
         return Response(serializer.data, status.HTTP_200_OK)
 
+    def update(self, request, *args, **kwargs):
+        translate(request)
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(serializer.data, status.HTTP_200_OK)
