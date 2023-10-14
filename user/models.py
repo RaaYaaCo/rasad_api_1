@@ -47,7 +47,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.username = self.u_phone_number
-        self.set_password(self.password)
+        # self.set_password(self.password)
         super().save(*args, **kwargs)
 
     def __str__(self):

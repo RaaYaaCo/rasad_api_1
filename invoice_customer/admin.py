@@ -17,4 +17,4 @@ class InvoiceCustomerAdmin(admin.ModelAdmin):
 
 @admin.register(ProductEntity)
 class ProductEntityAdmin(admin.ModelAdmin):
-    list_display = ['u_store_id', 'isi_is', 'p_id', 'sale_price', 'pe_is_active']
+    list_display = ['u_store_id', 'isi_id', 'p_id', 'sale_price', 'pe_is_active']

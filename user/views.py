@@ -55,7 +55,7 @@ class UserCodeGenericAPIView(GenericAPIView):
             if otp_code == serializer.validated_data['otp_code']:
                 register['is_active'] = True
                 serializer = UserSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid(raise_exception=False)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
                 group = Group.objects.get(name='مشتری')
