@@ -55,6 +55,7 @@ class InvoiceSalesShowAllView(ListAPIView):
     queryset = InvoiceSales.objects.all().order_by('-is_date_time')
 
     def list(self, request, *args, **kwargs):
+        translate(request)
         serializers = self.serializer_class(self.get_queryset(), many=True)
         items = []
         for item in serializers.data:
@@ -69,6 +70,7 @@ class InvoiceSalesShowDetailView(RetrieveAPIView):
     queryset = InvoiceSales.objects.all()
 
     def retrieve(self, request: Request, *args, **kwargs):
+        translate(request)
         instance = self.get_object()
         serializer = self.serializer_class(instance)
         item_instance = InvoiceSalesItem.objects.filter(is_id_id=serializer.data['id'])
