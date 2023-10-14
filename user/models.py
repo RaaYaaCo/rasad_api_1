@@ -1,11 +1,5 @@
-import warnings
-
-from django.contrib.auth import password_validation
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.db import models
-from django.utils.crypto import get_random_string
-from django.utils.deprecation import RemovedInDjango51Warning
 from django.utils.translation import gettext as _
 from django.contrib.gis.db import models as model
 
@@ -15,6 +9,7 @@ from .validators import check_phone, isnumeric
 
 
 # -------------------------------------------------------------------------------------------------
+
 
 class UserType(models.Model):
     ut_title = models.CharField(max_length=200, db_index=True, unique=True, verbose_name=_("title"))
@@ -53,7 +48,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.username = self.u_phone_number
-        self.make_password(self.password)
+        # self.set_password(self.password)
         super().save(*args, **kwargs)
 
     def __str__(self):

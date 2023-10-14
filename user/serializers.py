@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.contrib.gis.geos import GEOSGeometry
-from django.core.exceptions import ValidationError
 
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeometryField
@@ -9,6 +8,9 @@ from .models import User, Store
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+        This serializer returns us a form for registering the users.
+    """
     password_1 = serializers.CharField(label='password')
     password_2 = serializers.CharField(label="confirm password")
 
@@ -39,16 +41,21 @@ class UserSerializer(serializers.ModelSerializer):
                                         password=validated_data['password_1'])
         return user
 
-# ----------------
-
 
 class UserCodeSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form for saving the information of the users in the database.
+    """
     otp_code = serializers.CharField(required=True)
 
+# ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 
 
 class WholesalerStoreSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form for registering the wholesalers and stores.
+    """
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     code_meli = serializers.CharField(required=True)
@@ -58,7 +65,7 @@ class WholesalerStoreSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     description = serializers.CharField(required=True)
     address = serializers.CharField(required=True)
-    location = serializers.CharField(required=True)  # required=True
+    location = GeometryField(required=True)
     license = serializers.CharField(required=True)
     postal_code = serializers.CharField(required=True)
 
@@ -70,35 +77,39 @@ class WholesalerStoreSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
+
         user = User.objects.create_user(first_name=validated_data['first_name'],
                                         last_name=validated_data['last_name'],
                                         u_code_meli=validated_data['code_meli'],
                                         u_phone_number=validated_data['phone_number'],
                                         password=validated_data['password_1'])
 
-        location = GEOSGeometry(validated_data['location']) if validated_data['location'] else None
-
+        location = GEOSGeometry(validated_data['location'])
         store = Store.objects.create(u_id=user,
                                      s_name=validated_data['name'],
                                      s_description=validated_data['description'],
                                      s_license=validated_data['license'],
                                      s_postal_code=validated_data['postal_code'],
                                      s_address=validated_data['address'],
-                                     s_location=location
+                                     s_location=location,
                                      )
         return store
 
-# -----------------
-
 
 class WholesalerStoreCodeSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form for saving the stores in the database.
+    """
     otp_code = serializers.CharField(required=True)
 
-
+# ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 
 
 class OtherSerializer(serializers.ModelSerializer):
+    """
+        This serializer returns us a form for registering the others.
+    """
     password_1 = serializers.CharField(label='password')
     password_2 = serializers.CharField(label="confirm password")
     group = serializers.CharField(required=True)
@@ -132,21 +143,22 @@ class OtherSerializer(serializers.ModelSerializer):
                                         group=validated_data['group'])
         return user
 
-# ----------------
-
 
 class OtherCodeSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form for saving the other in the database.
+    """
     otp_code = serializers.CharField(required=True)
 
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
-class WholesalerStoreInvoiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Store
-        fields = '__all__'
 
 class LoginSerializer(serializers.ModelSerializer):
+    """
+        This serializer returns us a form for login.
+    """
 
-class UserInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['u_phone_number', 'password']
@@ -154,3 +166,26 @@ class UserInvoiceSerializer(serializers.ModelSerializer):
 
 class LoginSerializerCreateAccessToken(serializers.Serializer):
     refresh_token = serializers.CharField()
+
+
+class LogoutSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form involves "refresh_token" for logout.
+    """
+    refresh_token = serializers.CharField()
+
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+
+class WholesalerStoreInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = '__all__'
+
+
+class UserInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
