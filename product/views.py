@@ -1,18 +1,19 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
-from rest_framework.generics import CreateAPIView, ListCreateAPIView, GenericAPIView, RetrieveUpdateAPIView
+from rest_framework import generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
 from core.utils import translate
 from .serializers import ProductTypeSerializers, UnitSerializer, \
-    DegreeSerializer, ProductSerializers, ProductPriceSerializer
+    DegreeSerializer, ProductSerializers, ProductPriceSerializer, \
+    ProductAddSerializers, ProductPriceAddSerializer
 from .models import ProductType, Degree, Unit, Product, ProductPrice
 
 
-class ProductTypeView(CreateAPIView):
+class ProductTypeView(generics.CreateAPIView):
     serializer_class = ProductTypeSerializers
     queryset = ProductType.objects.all()
 
@@ -25,7 +26,7 @@ class ProductTypeView(CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class ProductTypeDetailView(RetrieveUpdateAPIView):
+class ProductTypeDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = ProductTypeSerializers
     queryset = ProductType.objects.all()
 
@@ -44,7 +45,7 @@ class ProductTypeDetailView(RetrieveUpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class DegreeView(CreateAPIView):
+class DegreeView(generics.CreateAPIView):
     serializer_class = DegreeSerializer
     queryset = Degree.objects.all()
 
@@ -57,7 +58,7 @@ class DegreeView(CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class DegreeDetailView(RetrieveUpdateAPIView):
+class DegreeDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = DegreeSerializer
     queryset = Degree.objects.all()
 
@@ -76,7 +77,7 @@ class DegreeDetailView(RetrieveUpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class UnitView(CreateAPIView):
+class UnitView(generics.CreateAPIView):
     serializer_class = UnitSerializer
     queryset = Unit.objects.all()
 
@@ -89,7 +90,7 @@ class UnitView(CreateAPIView):
                         status=status.HTTP_201_CREATED)
 
 
-class UnitDetailView(RetrieveUpdateAPIView):
+class UnitDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = UnitSerializer
     queryset = Unit.objects.all()
 
@@ -108,19 +109,19 @@ class UnitDetailView(RetrieveUpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class ProductView(ListCreateAPIView):
+class ProductView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializers
+    serializer_class = ProductAddSerializers
     filterset_fields = ['p_name', 'pt_id', 'd_id']
 
     def list(self, request: Request, *args, **kwargs):
         instance = self.get_queryset()
-        serializer = self.serializer_class(instance=instance, many=True)
+        serializer = ProductSerializers(instance=instance, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request: Request, *args, **kwargs):
         translate(request)
-        serializer = self.get_serializer(data=request.data)
+        serializer = ProductAddSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             serializer.save()
@@ -129,7 +130,7 @@ class ProductView(ListCreateAPIView):
             return Response({'msg': _('you can not register a product with the same name and degree')})
 
 
-class ProductDetailView(RetrieveUpdateAPIView):
+class ProductDetailView(generics.RetrieveUpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
     lookup_field = "p_slug"
@@ -152,14 +153,14 @@ class ProductDetailView(RetrieveUpdateAPIView):
             return Response({'msg': _('you can not register a product with the same name and degree')})
 
 
-class ProductPriceView(GenericAPIView):
-    serializer_class = ProductPriceSerializer
-    queryset = ProductPrice.objects.all()
+class ProductPriceView(generics.GenericAPIView):
+    serializer_class = ProductPriceAddSerializer
+    queryset = ProductPrice.objects.filter(pp_is_active=True)
 
     def get(self, request: Request):
         translate(request)
         instance = self.get_queryset()
-        serializer = self.serializer_class(instance=instance, many=True)
+        serializer = ProductPriceSerializer(instance=instance, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request: Request):
@@ -179,3 +180,4 @@ class ProductPriceView(GenericAPIView):
                 serializer.save()
                 return Response(data={'data': serializer.data, 'msg': _('new price registered')},
                                 status=status.HTTP_201_CREATED)
+
