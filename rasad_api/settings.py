@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_gis',
     'corsheaders',
     'drf_yasg',
     'django_filters',

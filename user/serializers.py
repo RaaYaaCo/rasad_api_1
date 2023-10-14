@@ -1,8 +1,8 @@
-from django.contrib.gis.geos import GEOSGeometry
 from django.core.exceptions import ValidationError
+from django.contrib.gis.geos import GEOSGeometry
 
 from rest_framework import serializers
-
+from rest_framework_gis.serializers import GeometryField
 
 from .models import User, Store
 
@@ -57,7 +57,7 @@ class WholesalerStoreSerializer(serializers.Serializer):
     name = serializers.CharField(required=True)
     description = serializers.CharField(required=True)
     address = serializers.CharField(required=True)
-    location = serializers.CharField(required=True)  # required=True
+    location = GeometryField(required=True)  # required=True
     license = serializers.CharField(required=True)
     postal_code = serializers.CharField(required=True)
 
@@ -75,15 +75,14 @@ class WholesalerStoreSerializer(serializers.Serializer):
                                         u_phone_number=validated_data['phone_number'],
                                         password=validated_data['password_1'])
 
-        location = GEOSGeometry(validated_data['location']) if validated_data['location'] else None
-
+        location = GEOSGeometry(validated_data['location'])
         store = Store.objects.create(u_id=user,
                                      s_name=validated_data['name'],
                                      s_description=validated_data['description'],
                                      s_license=validated_data['license'],
                                      s_postal_code=validated_data['postal_code'],
                                      s_address=validated_data['address'],
-                                     s_location=location
+                                     s_location=location,
                                      )
         return store
 

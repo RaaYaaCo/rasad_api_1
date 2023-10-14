@@ -5,6 +5,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_gis.serializers import GeometryField
 
 from .serializers import UserSerializer, UserCodeSerializer, WholesalerStoreSerializer, WholesalerStoreCodeSerializer, \
                          OtherSerializer, OtherCodeSerializer
@@ -91,12 +92,13 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
         request.session.get('register', {})
         request.session['register'] = serializer.data
         request.session.modified = True
         otp_code = code(length=5)
         REDIS_OTP_CODE.set(name=serializer.validated_data['phone_number'], value=otp_code, ex=REDIS_OTP_CODE_TIME)
+        request.session['register']['slug'] = request.session['register']['name'].replace(' ', '-')
         data1 = {
             'first_name': request.session['register']['first_name'],
             'last_name': request.session['register']['last_name'],
@@ -108,6 +110,7 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
             'location': request.session['register']['location'],
             'license': request.session['register']['license'],
             'postal_code': request.session['register']['postal_code'],
+            'slug': request.session['register']['slug']
         }
         data2 = {
             'otp_code': otp_code,
@@ -123,14 +126,14 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
         register = request.session.get('register')  # Value of session's key.
         try:
             otp_code = REDIS_OTP_CODE.get(register['phone_number'])
             otp_code = otp_code.decode('utf-8')
             if otp_code == request.data['otp_code']:
                 serializer = WholesalerStoreSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid(raise_exception=False)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['phone_number'])
                 group = Group.objects.get(name='فروشگاه')
@@ -147,14 +150,16 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
                     'location': request.session['register']['location'],
                     'license': request.session['register']['license'],
                     'postal_code': request.session['register']['postal_code'],
+                    'slug': request.session['register']['slug']
                 }
                 request.session['register'].clear()
                 request.session.modified = True
                 return Response(data={'Information': data}, status=status.HTTP_201_CREATED)
 
             return Response(data={'msg': _('The code is wrong')}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response(data={'msg': _('There is no such code in redis')}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            error_massage = str(e)
+            return Response(data={'msg': _('There is no such code in redis'), 'error': error_massage}, status=status.HTTP_400_BAD_REQUEST)
 
 # -----------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
