@@ -62,6 +62,7 @@ class Store(models.Model):
     u_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_("User Id"))
     s_name = models.CharField(max_length=200, unique=True, verbose_name=_("Store Name"))
     s_description = models.TextField(verbose_name=_("Description"), blank=True, null=True)
+    s_image = models.ImageField(upload_to='store/images/', blank=True, null=True, verbose_name=_('image'))
     s_address = model.TextField(verbose_name=_('Address'))
     s_location = model.GeometryField(geography=True, null=True, blank=True, verbose_name=_('Location'))
     s_postal_code = models.CharField(max_length=200, validators=[isnumeric], verbose_name=_("Postal Code"))
