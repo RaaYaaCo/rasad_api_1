@@ -60,7 +60,6 @@ class InvoiceSalesShowAllView(ListAPIView):
         for item in serializers.data:
             item_instance = InvoiceSalesItem.objects.filter(is_id_id=item['id'])
             item_serializers = InvoiceSalesItemSerializer(item_instance, many=True)
-            print(item_serializers)
             items.append({'invoice': item, 'items': item_serializers.data})
         return Response(items, status.HTTP_200_OK)
 

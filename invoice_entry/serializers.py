@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import InvoiceEntry, InvoiceEntryItem
-from user.serializers import UserSerializer
+from user.serializers import UserInvoiceSerializer
 from product.serializers import ProductSerializers
 
 
@@ -18,7 +18,7 @@ class InvoiceEntryItemAddSerializer(serializers.ModelSerializer):
 
 
 class InvoiceEntrySerializer(serializers.ModelSerializer):
-    u_wholesaler_id = UserSerializer(read_only=True)
+    u_wholesaler_id = UserInvoiceSerializer(read_only=True)
 
     class Meta:
         model = InvoiceEntry

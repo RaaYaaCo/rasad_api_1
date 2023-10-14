@@ -13,9 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-<<<<<<< HEAD
-        fields = ['id', 'first_name', 'last_name', 'u_code_meli', 'u_phone_number', 'password', 'is_active']
-=======
         fields = ['id',
                   'first_name',
                   'last_name',
@@ -42,7 +39,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 # ----------------
->>>>>>> develop
 
 
 class UserCodeSerializer(serializers.Serializer):
@@ -139,3 +135,15 @@ class OtherSerializer(serializers.ModelSerializer):
 
 class OtherCodeSerializer(serializers.Serializer):
     otp_code = serializers.CharField(required=True)
+
+
+class WholesalerStoreInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = '__all__'
+
+
+class UserInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'

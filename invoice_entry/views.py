@@ -44,13 +44,7 @@ class InvoiceEntryShowAllView(ListAPIView):
 
     def list(self, request, *args, **kwargs):
         serializers = self.serializer_class(self.get_queryset(), many=True)
-        items = []
-        for item in serializers.data:
-            item_instance = InvoiceEntryItem.objects.filter(ie_id_id=item['id'])
-            item_serializers = InvoiceEntryItemSerializer(item_instance, many=True)
-            print(item_serializers)
-            items.append({'invoice': item, 'items': item_serializers.data})
-        return Response(items, status.HTTP_200_OK)
+        return Response(serializers.data, status.HTTP_200_OK)
 
 
 class InvoiceEntryShowDetailView(RetrieveAPIView):
