@@ -53,7 +53,7 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.username = self.u_phone_number
-        self.set_password(self.password)
+        self.make_password(self.password)
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -62,6 +62,9 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _("User")
         verbose_name_plural = _("Users")
+
+    def make_password(self, password):
+        pass
 
 
 class Store(models.Model):

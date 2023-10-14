@@ -5,9 +5,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from .serializers import UserSerializer, UserCodeSerializer, WholesalerStoreSerializer, WholesalerStoreCodeSerializer, \
-                         OtherSerializer, OtherCodeSerializer
+                         OtherSerializer, OtherCodeSerializer, LoginSerializer, LoginSerializerCreateAccessToken
 from .models import User
 from .utils import code, get_tokens
 from rasad_api.settings import REDIS_OTP_CODE, REDIS_OTP_CODE_TIME, REDIS_JWT_TOKEN, REDIS_REFRESH_TIME
@@ -54,7 +55,7 @@ class UserCodeGenericAPIView(GenericAPIView):
             if otp_code == serializer.validated_data['otp_code']:
                 register['is_active'] = True
                 serializer = UserSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid()
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
                 group = Group.objects.get(name='مشتری')
@@ -69,6 +70,7 @@ class UserCodeGenericAPIView(GenericAPIView):
                     'last_name': request.session['register']['last_name'],
                     'code_melli': request.session['register']['u_code_meli'],
                     'phone_number': request.session['register']['u_phone_number'],
+                    'group': group.name
                 }
                 data2 = {
                     "AccessToken": access_token,
@@ -82,7 +84,6 @@ class UserCodeGenericAPIView(GenericAPIView):
         except Exception:
             return Response(data={'msg': _('There is no such code in redis')}, status=status.HTTP_400_BAD_REQUEST)
 
-# ---------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
 
 
@@ -98,7 +99,7 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
         otp_code = code(length=5)
         REDIS_OTP_CODE.set(name=serializer.validated_data['phone_number'], value=otp_code, ex=REDIS_OTP_CODE_TIME)
         data1 = {
-            'first_name': request.session['register']['first_name'],
+            'first_name': request.session['register']['first_name'],  # ?
             'last_name': request.session['register']['last_name'],
             'code_melli': request.session['register']['code_meli'],
             'phone_number': request.session['register']['phone_number'],
@@ -107,8 +108,7 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
             'address': request.session['register']['address'],
             'location': request.session['register']['location'],
             'license': request.session['register']['license'],
-            'postal_code': request.session['register']['postal_code'],
-        }
+            'postal_code': request.session['register']['postal_code']}
         data2 = {
             'otp_code': otp_code,
                }
@@ -129,8 +129,9 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
             otp_code = REDIS_OTP_CODE.get(register['phone_number'])
             otp_code = otp_code.decode('utf-8')
             if otp_code == request.data['otp_code']:
+                register['is_active'] = False
                 serializer = WholesalerStoreSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid()
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['phone_number'])
                 group = Group.objects.get(name='فروشگاه')
@@ -147,6 +148,7 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
                     'location': request.session['register']['location'],
                     'license': request.session['register']['license'],
                     'postal_code': request.session['register']['postal_code'],
+                    'group': group.name
                 }
                 request.session['register'].clear()
                 request.session.modified = True
@@ -156,7 +158,6 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
         except Exception:
             return Response(data={'msg': _('There is no such code in redis')}, status=status.HTTP_400_BAD_REQUEST)
 
-# -----------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------
 
 
@@ -197,10 +198,10 @@ class OtherCodeGenericAPIView(GenericAPIView):
         try:
             otp_code = REDIS_OTP_CODE.get(register['u_phone_number'])
             otp_code = otp_code.decode('utf-8')
-            a = serializer.validated_data['otp_code']
             if otp_code == serializer.validated_data['otp_code']:
+                register['is_active'] = False
                 serializer = UserSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid()
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
                 group = Group.objects.get(name=request.session['register']['group'])
@@ -221,3 +222,71 @@ class OtherCodeGenericAPIView(GenericAPIView):
         except Exception:
             return Response(data={'msg': _('There is no such code in redis')}, status=status.HTTP_400_BAD_REQUEST)
 
+# ###########LOGINLOGINLOGINLOGINLOGINLOGINLOGIN#############
+
+
+class LoginGenericAPIView(GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        try:
+            user = User.objects.get(u_phone_number=request.data['u_phone_number'])
+            if user.check_password(request.data['password']) and user.is_active == True:
+                token = get_tokens(user)
+                access_token = token['Access']
+                refresh_token = token['Refresh']
+                # token = AccessToken(access_token)
+                # user = User.objects.get(id=token['user_id'])
+                group = Group.objects.get(user=user)
+                # group = Group.objects.get(name='فروشگاه')
+                REDIS_JWT_TOKEN.set(name=refresh_token, value=refresh_token, ex=REDIS_REFRESH_TIME)
+                data = {
+                    "user": {
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'phone_number': user.u_phone_number,
+                        'u_code_meli': user.u_code_meli,
+                        'group': group.name
+                    },
+                    "access": access_token,
+                    "refresh": REDIS_JWT_TOKEN.get(refresh_token)
+                }
+                return Response({'Token': data}, status.HTTP_201_CREATED)
+            else:
+                return Response({"message": "Username or Password is Wrong."}, status.HTTP_400_BAD_REQUEST)
+
+        except User.DoesNotExist:
+            return Response({"message": "You cannot login. First Register."}, status.HTTP_400_BAD_REQUEST)
+
+# -------------------------------
+
+
+class LoginAPIViewCreateAccess(GenericAPIView):
+    serializer_class = LoginSerializerCreateAccessToken
+
+    def post(self, request: Request):
+        serializer = self.serializer_class(data=request.data)
+        try:
+            token = request.data['refresh_token']
+            REDIS_JWT_TOKEN.delete(token)
+            token = RefreshToken(token)
+            user = User.objects.get(id=token['user_id'])
+            access_refresh_token = get_tokens(user)
+            access_token = access_refresh_token['Access']
+            refresh_token = access_refresh_token['Refresh']
+            REDIS_JWT_TOKEN.set(name=refresh_token, value=refresh_token, ex=REDIS_REFRESH_TIME)
+            data = {
+                "user": {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'phone_number': user.u_phone_number,
+                    'u_code_meli': user.u_code_meli
+                },
+                "new access": access_token,
+                "new refresh": REDIS_JWT_TOKEN.get(refresh_token)
+            }
+            return Response(data={'Token': data}, status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({"message": "Token is expired"})

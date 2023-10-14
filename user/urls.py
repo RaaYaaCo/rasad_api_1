@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import UserGenericAPIView, UserCodeGenericAPIView, WholesalerStoreGenericAPIView, \
-    WholesalerStoreCodeGenericAPIView, OtherGenericAPIView, OtherCodeGenericAPIView
+    WholesalerStoreCodeGenericAPIView, OtherGenericAPIView, OtherCodeGenericAPIView, LoginAPIViewCreateAccess, \
+    LoginGenericAPIView
 
 app_name = 'user'
 
@@ -10,5 +11,7 @@ urlpatterns = [
     path('register/whole-store/', WholesalerStoreGenericAPIView.as_view(), name='register-whole-store'),
     path('register/whole-store/save/', WholesalerStoreCodeGenericAPIView.as_view(), name='register-whole-store-save'),
     path('register/other/', OtherGenericAPIView.as_view(), name='register-other'),
-    path('register/other/save/', OtherCodeGenericAPIView.as_view(), name='register-other-save')
+    path('register/other/save/', OtherCodeGenericAPIView.as_view(), name='register-other-save'),
+    path('login/', LoginGenericAPIView.as_view(), name='login'),
+    path('login/create-token/', LoginAPIViewCreateAccess.as_view(), name='login-create-token'),
 ]

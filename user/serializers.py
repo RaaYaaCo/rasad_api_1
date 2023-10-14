@@ -93,6 +93,7 @@ class WholesalerStoreSerializer(serializers.Serializer):
 class WholesalerStoreCodeSerializer(serializers.Serializer):
     otp_code = serializers.CharField(required=True)
 
+
 # ----------------------------------------------------------------------------
 
 
@@ -135,3 +136,16 @@ class OtherSerializer(serializers.ModelSerializer):
 
 class OtherCodeSerializer(serializers.Serializer):
     otp_code = serializers.CharField(required=True)
+
+# ----------------
+
+
+class LoginSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['u_phone_number', 'password']
+
+
+class LoginSerializerCreateAccessToken(serializers.Serializer):
+    refresh_token = serializers.CharField()
