@@ -1,11 +1,5 @@
-import warnings
-
-from django.contrib.auth import password_validation
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager, Group
 from django.db import models
-from django.utils.crypto import get_random_string
-from django.utils.deprecation import RemovedInDjango51Warning
 from django.utils.translation import gettext as _
 from django.contrib.gis.db import models as model
 
@@ -68,13 +62,19 @@ class Store(models.Model):
     u_id = models.ForeignKey(User, on_delete=models.PROTECT, db_index=True, verbose_name=_("User Id"))
     s_name = models.CharField(max_length=200, unique=True, verbose_name=_("Store Name"))
     s_description = models.TextField(verbose_name=_("Description"), blank=True, null=True)
+    s_image = models.ImageField(upload_to='store/images/', blank=True, null=True, verbose_name=_('image'))
     s_address = model.TextField(verbose_name=_('Address'))
     s_location = model.GeometryField(geography=True, null=True, blank=True, verbose_name=_('Location'))
     s_postal_code = models.CharField(max_length=200, validators=[isnumeric], verbose_name=_("Postal Code"))
     s_license = models.CharField(max_length=10, unique=True, validators=[isnumeric], verbose_name=_("Job License"))
+    s_slug = models.CharField(max_length=200, unique=True, verbose_name=_('slug'), blank=True)
 
     def __str__(self):
         return f"{self.s_name}"
+
+    def save(self, *args, **kwargs):
+        self.s_slug = self.s_name.replace(' ', '-')
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Store")

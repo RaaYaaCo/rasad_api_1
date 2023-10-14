@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_gis',
     'corsheaders',
     'drf_yasg',
     'django_filters',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'invoice_sales',
     'invoice_customer',
     'feedback',
+    'store'
 ]
 
 MIDDLEWARE = [
@@ -64,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     # 'core.middleware.CustomMiddleware'
 ]
 

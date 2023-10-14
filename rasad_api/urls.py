@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/invoice/sales/', include('invoice_sales.urls')),
     path('api/invoice/customer/', include('invoice_customer.urls')),
     path('api/feedback/', include('feedback.urls')),
+    path('api/store/', include('store.urls')),
 
 
     # swagger
