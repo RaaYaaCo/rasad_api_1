@@ -135,3 +135,15 @@ class OtherSerializer(serializers.ModelSerializer):
 
 class OtherCodeSerializer(serializers.Serializer):
     otp_code = serializers.CharField(required=True)
+
+
+class WholesalerStoreInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = '__all__'
+
+
+class UserInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'

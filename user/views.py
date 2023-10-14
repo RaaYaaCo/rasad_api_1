@@ -54,7 +54,7 @@ class UserCodeGenericAPIView(GenericAPIView):
             if otp_code == serializer.validated_data['otp_code']:
                 register['is_active'] = True
                 serializer = UserSerializer(data=register)
-                serializer.is_valid(raise_exception=True)
+                serializer.is_valid(raise_exception=False)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
                 group = Group.objects.get(name='مشتری')
@@ -123,7 +123,7 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
         register = request.session.get('register')  # Value of session's key.
         try:
             otp_code = REDIS_OTP_CODE.get(register['phone_number'])

@@ -5,7 +5,7 @@ from .views import UserGenericAPIView, UserCodeGenericAPIView, WholesalerStoreGe
 app_name = 'user'
 
 urlpatterns = [
-    path('register/customer/', UserGenericAPIView.as_view(), name='register-customer'),
+path('register/customer/', UserGenericAPIView.as_view(), name='register-customer'),
     path('register/customer/save/', UserCodeGenericAPIView.as_view(), name='register-customer-save'),
     path('register/whole-store/', WholesalerStoreGenericAPIView.as_view(), name='register-whole-store'),
     path('register/whole-store/save/', WholesalerStoreCodeGenericAPIView.as_view(), name='register-whole-store-save'),
