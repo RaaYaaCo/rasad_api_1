@@ -56,6 +56,7 @@ class WholesalerStoreSerializer(serializers.Serializer):
     password_2 = serializers.CharField(required=True, label='confirm password')
     name = serializers.CharField(required=True)
     description = serializers.CharField(required=True)
+    image = serializers.ImageField(required=False)
     address = serializers.CharField(required=True)
     location = GeometryField(required=True)  # required=True
     license = serializers.CharField(required=True)
@@ -82,6 +83,7 @@ class WholesalerStoreSerializer(serializers.Serializer):
                                      s_license=validated_data['license'],
                                      s_postal_code=validated_data['postal_code'],
                                      s_address=validated_data['address'],
+                                     s_image=validated_data['image'],
                                      s_location=location,
                                      )
         return store
