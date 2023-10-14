@@ -23,6 +23,9 @@ class DegreeSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializers(serializers.ModelSerializer):
+    pt_id = ProductTypeSerializers(read_only=True)
+    d_id = DegreeSerializer(read_only=True)
+    un_id = UnitSerializer(read_only=True)
 
     class Meta:
         model = Product
@@ -31,6 +34,7 @@ class ProductSerializers(serializers.ModelSerializer):
 
 
 class ProductPriceSerializer(serializers.ModelSerializer):
+    p_id = ProductSerializers(read_only=True)
 
     class Meta:
         model = ProductPrice
