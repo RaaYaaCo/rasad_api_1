@@ -33,9 +33,23 @@ class ProductSerializers(serializers.ModelSerializer):
         read_only_fields = ['p_slug']
 
 
+class ProductAddSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+        read_only_fields = ['p_slug']
+
+
 class ProductPriceSerializer(serializers.ModelSerializer):
     p_id = ProductSerializers(read_only=True)
 
+    class Meta:
+        model = ProductPrice
+        fields = '__all__'
+        read_only_fields = ['pp_is_active']
+
+
+class ProductPriceAddSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductPrice
         fields = '__all__'
