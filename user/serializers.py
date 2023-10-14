@@ -38,6 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
                                         password=validated_data['password_1'])
         return user
 
+
 # ----------------
 
 
