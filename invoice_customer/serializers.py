@@ -13,9 +13,9 @@ class InvoiceCustomerAddSerializer(serializers.ModelSerializer):
 
 
 class InvoiceCustomerItemAddSerializer(serializers.ModelSerializer):
-    u_store_id = WholesalerStoreInvoiceSerializer(read_only=True)
-    isi_id = InvoiceSalesSerializer(read_only=True)
-    p_id = ProductSerializers(read_only=True)
+    # u_store_id = WholesalerStoreInvoiceSerializer(read_only=True)
+    # isi_id = InvoiceSalesSerializer(read_only=True)
+    # p_id = ProductSerializers(read_only=True)
 
     class Meta:
         model = InvoiceCustomerItem

@@ -41,21 +41,21 @@ class InvoiceCustomerItemAddView(CreateAPIView):
             invoice = ProductEntity.objects.get(id=serializer.data['pe_id'])
             if invoice.pe_weight >= serializer.data['ici_weight']:
                 invoice.pe_weight = invoice.pe_weight - serializer.data['ici_weight']
+                if invoice.pe_weight == 0:
+                    invoice.pe_is_active = False
                 invoice.save()
             else:
                 return Response({'msg': _('Requested weight is not available')}, status.HTTP_400_BAD_REQUEST)
             return Response(serializer.data, status.HTTP_201_CREATED)
-        except:
-            return Response({'msg': _('error!!')}, status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            error_message = str(e)
+            return Response({'msg': _('error!!'), 'error': error_message}, status.HTTP_400_BAD_REQUEST)
 
 
 class InvoiceCustomerShowAllView(ListAPIView):
     serializer_class = InvoiceCustomerSerializer
     queryset = InvoiceCustomer.objects.all()
-
-    def list(self, request, *args, **kwargs):
-        serializers = self.serializer_class(self.get_queryset(), many=True)
-        return Response(serializers.data, status.HTTP_200_OK)
+    filterset_fields = ['u_store_id', 'u_customer_id', 'ic_date_time']
 
 
 class InvoiceCustomerShowDetailView(RetrieveAPIView):
@@ -68,6 +68,28 @@ class InvoiceCustomerShowDetailView(RetrieveAPIView):
         item_instance = InvoiceCustomerItem.objects.filter(ic_id_id=serializer.data['id'])
         item_serializer = InvoiceCustomerItemSerializer(item_instance, many=True)
         return Response({'invoice': serializer.data, 'items': item_serializer.data}, status.HTTP_200_OK)
+
+
+class InvoiceSalesShowDetailStoreView(GenericAPIView):
+    serializer_class = InvoiceCustomerSerializer
+    queryset = InvoiceCustomer.objects.all()
+    lookup_field = 'u_store_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        invoice_entry = InvoiceCustomer.objects.filter(u_store_id_id=self.kwargs['u_store_id'])
+        serializer = self.serializer_class(invoice_entry, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class InvoiceSalesShowDetailCustomerView(GenericAPIView):
+    serializer_class = InvoiceCustomerSerializer
+    queryset = InvoiceCustomer.objects.all()
+    lookup_field = 'u_customer_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        invoice_entry = InvoiceCustomer.objects.filter(u_customer_id_id=self.kwargs['u_customer_id'])
+        serializer = self.serializer_class(invoice_entry, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 class ProductEntityUpdatePriceView(RetrieveUpdateAPIView):
@@ -106,7 +128,7 @@ class ProductEntityShowStoreView(GenericAPIView):
 
     def get(self, request: Request, *args, **kwargs):
         translate(request)
-        product_entity = ProductEntity.objects.filter(u_store_id_id=self.kwargs['u_store_id'])
+        product_entity = ProductEntity.objects.filter(u_store_id_id=self.kwargs['u_store_id'], pe_is_active=True)
         serializer = ProductEntitySerializer(product_entity, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
 

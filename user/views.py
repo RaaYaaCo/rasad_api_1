@@ -288,7 +288,7 @@ class LoginGenericAPIView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid()
         try:
-            user = User.objects.get(u_phone_number=request.data['u_phone_number'])
+            user = User.objects.get(u_phone_number=request.data['u_phone_number'], is_active=True)
             group = Group.objects.get(user=user)
             if user.check_password(request.data['password']):
                 tokens = get_tokens(user)

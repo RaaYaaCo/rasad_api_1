@@ -21,7 +21,7 @@ class InvoiceEntry(models.Model):
     ie_date_time = models.DateTimeField(auto_now_add=True, verbose_name=_('date time'))
 
     def __str__(self):
-        return f'{self.u_wholesaler_id.u_phone_number} / {self.ie_date_time}'
+        return f'{self.u_wholesaler_id.u_phone_number} / {self.u_wholesaler_id.first_name} {self.u_wholesaler_id.last_name}'
 
     class Meta:
         verbose_name = _('Invoice Entry')
@@ -34,7 +34,7 @@ class InvoiceEntryItem(models.Model):
     iei_weight = models.FloatField(verbose_name=_('weight'))
 
     def __str__(self):
-        return self.p_id.p_name
+        return f'{self.ie_id.u_wholesaler_id.u_phone_number} / {self.p_id.p_name}'
 
     class Meta:
         verbose_name = _('Invoice Entry Item')
