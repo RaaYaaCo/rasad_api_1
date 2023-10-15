@@ -114,11 +114,6 @@ class ProductView(generics.ListCreateAPIView):
     serializer_class = ProductAddSerializers
     filterset_fields = ['p_name', 'pt_id', 'd_id']
 
-    def list(self, request: Request, *args, **kwargs):
-        instance = self.get_queryset()
-        serializer = ProductSerializers(instance=instance, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
-
     def create(self, request: Request, *args, **kwargs):
         translate(request)
         serializer = ProductAddSerializers(data=request.data)
