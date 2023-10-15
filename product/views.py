@@ -181,3 +181,14 @@ class ProductPriceView(generics.GenericAPIView):
                 return Response(data={'data': serializer.data, 'msg': _('new price registered')},
                                 status=status.HTTP_201_CREATED)
 
+
+class EachProductPriceView(generics.GenericAPIView):
+    serializer_class = ProductPriceSerializer
+    queryset = ProductPrice.objects.filter
+    lookup_field = 'p_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        translate(request)
+        instance = self.queryset(p_id=self.kwargs['p_id']).order_by('-pp_date_time')
+        serializer = self.serializer_class(instance, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)

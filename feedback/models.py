@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -7,10 +8,8 @@ from user.models import User
 class Rating(models.Model):
     r_title = models.CharField(max_length=200, db_index=True, verbose_name=_('title'))
 
-
     def __str__(self):
-        return f'{self.r_title}{self.id}'
-
+        return self.r_title
 
     class Meta:
         verbose_name = _('Rating')
