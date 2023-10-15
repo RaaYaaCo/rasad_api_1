@@ -62,6 +62,7 @@ class InvoiceEntryShowDetailWholesaler(GenericAPIView):
     lookup_field = 'u_wholesaler_id'
 
     def get(self, request: Request, *args, **kwargs):
+        translate(request)
         invoice_entry = InvoiceEntry.objects.filter(u_wholesaler_id_id=self.kwargs['u_wholesaler_id'])
         serializer = self.serializer_class(invoice_entry, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
