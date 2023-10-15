@@ -41,7 +41,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product/images/', verbose_name='image', blank=True, null=True)
     pt_id = models.ForeignKey(ProductType, on_delete=models.PROTECT, verbose_name=_('product type'), db_index=True)
     d_id = models.ForeignKey(Degree, on_delete=models.PROTECT, verbose_name=_('degree'), db_index=True)
-    un_id = models.ForeignKey(Unit, on_delete=models.PROTECT, verbose_name=_('Unit'))
+    un_id = models.ForeignKey(Unit, on_delete=models.PROTECT, default=1, verbose_name=_('Unit'))
     p_slug = models.CharField(max_length=100, db_index=True, verbose_name=_('slug'), unique=True, blank=True)
 
     def __str__(self):
