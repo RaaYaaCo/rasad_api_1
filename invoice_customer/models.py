@@ -31,7 +31,7 @@ class InvoiceCustomer(models.Model):
 
 
 class ProductEntity(models.Model):
-    u_store_id = models.ForeignKey(User, on_delete=models.PROTECT,
+    u_store_id = models.ForeignKey(Store, on_delete=models.PROTECT,
                                    db_index=True,
                                    verbose_name=_('store'),
                                    related_name='storeProductEntity'
@@ -46,7 +46,7 @@ class ProductEntity(models.Model):
     pe_update_time = models.DateTimeField(auto_now_add=True, verbose_name=_('update time'))
 
     def __str__(self):
-        return f'{self.u_store_id.u_phone_number} / {self.p_id.p_name} / {self.sale_price}'
+        return f'{self.u_store_id.s_name} / {self.p_id.p_name} / {self.sale_price}'
 
     class Meta:
         verbose_name = _('Product Entity')
@@ -60,7 +60,7 @@ class InvoiceCustomerItem(models.Model):
     pe_id = models.ForeignKey(ProductEntity, on_delete=models.PROTECT, verbose_name=_('Product Price'))
 
     def __str__(self):
-        return self.p_id.p_name
+        return f'{self.ic_id.u_store_id.s_name} / {self.ic_id.u_customer_id.u_phone_number} / {self.p_id.p_name}'
 
     class Meta:
         verbose_name = _('Invoice Customer Item')
