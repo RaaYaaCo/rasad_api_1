@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_filters',
 
     'product',
+    'check_system_init',
     'user',
     'invoice_entry',
     'invoice_sales',
