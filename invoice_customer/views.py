@@ -63,6 +63,7 @@ class InvoiceCustomerShowDetailView(RetrieveAPIView):
     queryset = InvoiceCustomer.objects.all()
 
     def retrieve(self, request: Request, *args, **kwargs):
+        translate(request)
         instance = self.get_object()
         serializer = self.serializer_class(instance)
         item_instance = InvoiceCustomerItem.objects.filter(ic_id_id=serializer.data['id'])
@@ -76,6 +77,7 @@ class InvoiceSalesShowDetailStoreView(GenericAPIView):
     lookup_field = 'u_store_id'
 
     def get(self, request: Request, *args, **kwargs):
+        translate(request)
         invoice_entry = InvoiceCustomer.objects.filter(u_store_id_id=self.kwargs['u_store_id'])
         serializer = self.serializer_class(invoice_entry, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
@@ -87,6 +89,7 @@ class InvoiceSalesShowDetailCustomerView(GenericAPIView):
     lookup_field = 'u_customer_id'
 
     def get(self, request: Request, *args, **kwargs):
+        translate(request)
         invoice_entry = InvoiceCustomer.objects.filter(u_customer_id_id=self.kwargs['u_customer_id'])
         serializer = self.serializer_class(invoice_entry, many=True)
         return Response(serializer.data, status.HTTP_200_OK)
@@ -97,6 +100,7 @@ class ProductEntityUpdatePriceView(RetrieveUpdateAPIView):
     queryset = ProductEntity.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
+        translate(request)
         serializer = self.serializer_class(instance=self.get_object())
         return Response(serializer.data)
 
