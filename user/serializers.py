@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework_gis.serializers import GeometryField
 
 from .models import User, Store
+from .validators import check_phone
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -180,6 +181,32 @@ class LogoutSerializer(serializers.Serializer):
     """
     refresh_token = serializers.CharField()
 
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+
+
+class ForgetPasswordSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=True, max_length=11, validators=[check_phone])
+
+
+class ForgetPasswordCodeSerializer(serializers.Serializer):
+    """
+        This serializer returns us a form for saving the information of the users in the database.
+    """
+    otp_code = serializers.CharField(required=True)
+
+
+class NewPasswordSerializer(serializers.Serializer):
+    new_password_1 = serializers.CharField(required=True, label='new password')
+    new_password_2 = serializers.CharField(required=True, label='confirm new password')
+
+    def validate(self, data):
+        new_password_1_value = data.get('new_password_1')
+        new_password_2_value = data.get('new_password_2')
+
+        if new_password_1_value and new_password_2_value and new_password_1_value != new_password_2_value:
+            raise ValidationError("The passwords must match")
+        return data
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
