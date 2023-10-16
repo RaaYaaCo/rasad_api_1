@@ -164,11 +164,12 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
             otp_code = REDIS_OTP_CODE.get(register['phone_number'])
             otp_code = otp_code.decode('utf-8')
             if otp_code == request.data['otp_code']:
-                register['is_active'] = False
                 serializer = WholesalerStoreSerializer(data=register)
                 serializer.is_valid(raise_exception=False)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['phone_number'])
+                user.is_active = False
+                user.save()
                 group = Group.objects.get(name='فروشگاه')
                 group.user_set.add(user)
                 group.save()
@@ -225,7 +226,7 @@ class OtherGenericAPIView(GenericAPIView):
             'last_name': request.session['register']['last_name'],
             'code_melli': request.session['register']['u_code_meli'],
             'phone_number': request.session['register']['u_phone_number'],
-            'group': request.session['register']['group']
+            'group': request.session['register']['group'],
         }
         data2 = {
             'otp_code': otp_code,
@@ -252,11 +253,12 @@ class OtherCodeGenericAPIView(GenericAPIView):
             otp_code = REDIS_OTP_CODE.get(register['u_phone_number'])
             otp_code = otp_code.decode('utf-8')
             if otp_code == serializer.validated_data['otp_code']:
-                register['is_active'] = False
                 serializer = UserSerializer(data=register)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
+                user.is_active = False
+                user.save()
                 group = Group.objects.get(name=request.session['register']['group'])
                 group.user_set.add(user)
                 group.save()
@@ -265,7 +267,7 @@ class OtherCodeGenericAPIView(GenericAPIView):
                     'last_name': request.session['register']['last_name'],
                     'code_melli': request.session['register']['u_code_meli'],
                     'phone_number': request.session['register']['u_phone_number'],
-                    'group': request.session['register']['group']
+                    'group': request.session['register']['group'],
                 }
                 request.session['register'].clear()
                 request.session.modified = True
