@@ -293,9 +293,9 @@ class LoginGenericAPIView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid()
         try:
-            user = User.objects.get(u_phone_number=request.data['u_phone_number'], is_active=True)
+            user = User.objects.get(u_phone_number=request.data['u_phone_number'])
             group = Group.objects.get(user=user)
-            if user.check_password(request.data['password']):
+            if user.check_password(request.data['password']) and user.is_active == True:
                 tokens = get_tokens(user)
                 access_token = tokens['Access']
                 refresh_token = tokens['Refresh']
@@ -314,6 +314,7 @@ class LoginGenericAPIView(GenericAPIView):
                     }
                 }
                 return Response(data=data, status=status.HTTP_201_CREATED)
+            return Response({'msg': _('You are not allowed to enter')})
         except Exception as e:
             error_message = str(e)
             return Response(data={'msg': error_message})
@@ -353,7 +354,7 @@ class LoginAPIViewCreateAccess(GenericAPIView):
             return Response(data=data, status=status.HTTP_201_CREATED)
         except Exception as e:
             error_message = str(e)
-            return Response({'message': 'Token is expired', 'error': error_message})
+            return Response({'message': _('Token is expired'), 'error': error_message})
 
 # ---------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
@@ -370,9 +371,9 @@ class LogoutAPIView(GenericAPIView):
         refresh_token = request.data['refresh_token']
         if REDIS_JWT_TOKEN.exists(refresh_token):
             REDIS_JWT_TOKEN.delete(refresh_token)
-            return Response({"message": "You are logged out successfully"})
+            return Response({"message": _("You are logged out successfully")})
         else:
-            return Response({"message": "There is no refresh token in redis"})
+            return Response({"message": _("There is no refresh token in redis")})
 
 # ---------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
@@ -416,7 +417,7 @@ class ForgetPasswordCodeAPIView(GenericAPIView):
             if otp_code == serializer.validated_data['otp_code']:
                 data = {
                     'phone_number': request.session['forget']['phone_number'],
-                    'msg': 'The code is correct.'
+                    'msg': _('The code is correct.')
                 }
                 return Response(data=data, status=status.HTTP_201_CREATED)
 
@@ -445,7 +446,7 @@ class NewPasswordSerializerAPIView(GenericAPIView):
             request.session['forget'].clear()
             request.session.modified = True
             data = {
-                'msg': 'The new password is created successfully',
+                'msg': _('The new password is created successfully'),
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
