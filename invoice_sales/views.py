@@ -53,16 +53,7 @@ class InvoiceSalesItemAddView(GenericAPIView):
 class InvoiceSalesShowAllView(ListAPIView):
     serializer_class = InvoiceSalesSerializer
     queryset = InvoiceSales.objects.all().order_by('-is_date_time')
-
-    def list(self, request, *args, **kwargs):
-        translate(request)
-        serializers = self.serializer_class(self.get_queryset(), many=True)
-        items = []
-        for item in serializers.data:
-            item_instance = InvoiceSalesItem.objects.filter(is_id_id=item['id'])
-            item_serializers = InvoiceSalesItemSerializer(item_instance, many=True)
-            items.append({'invoice': item, 'items': item_serializers.data})
-        return Response(items, status.HTTP_200_OK)
+    filterset_fields = ['u_wholesaler_id', 'u_store_id', 'is_date_time']
 
 
 class InvoiceSalesShowDetailView(RetrieveAPIView):
@@ -76,3 +67,27 @@ class InvoiceSalesShowDetailView(RetrieveAPIView):
         item_instance = InvoiceSalesItem.objects.filter(is_id_id=serializer.data['id'])
         item_serializer = InvoiceSalesItemSerializer(item_instance, many=True)
         return Response({'invoice': serializer.data, 'items': item_serializer.data}, status.HTTP_200_OK)
+
+
+class InvoiceSalesShowDetailWholesalerView(GenericAPIView):
+    serializer_class = InvoiceSalesSerializer
+    queryset = InvoiceSales.objects.all()
+    lookup_field = 'u_wholesaler_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        translate(request)
+        invoice_entry = InvoiceSales.objects.filter(u_wholesaler_id_id=self.kwargs['u_wholesaler_id'])
+        serializer = self.serializer_class(invoice_entry, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class InvoiceSalesShowDetailStoreView(GenericAPIView):
+    serializer_class = InvoiceSalesSerializer
+    queryset = InvoiceSales.objects.all()
+    lookup_field = 'u_store_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        translate(request)
+        invoice_entry = InvoiceSales.objects.filter(u_store_id_id=self.kwargs['u_store_id'])
+        serializer = self.serializer_class(invoice_entry, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)

@@ -40,11 +40,7 @@ class InvoiceEntryItemAddView(GenericAPIView):
 class InvoiceEntryShowAllView(ListAPIView):
     serializer_class = InvoiceEntrySerializer
     queryset = InvoiceEntry.objects.all().order_by('-ie_date_time')
-
-    def list(self, request, *args, **kwargs):
-        translate(request)
-        serializers = self.serializer_class(self.get_queryset(), many=True)
-        return Response(serializers.data, status.HTTP_200_OK)
+    filterset_fields = ['u_wholesaler_id', 'ie_date_time']
 
 
 class InvoiceEntryShowDetailView(RetrieveAPIView):
@@ -58,3 +54,15 @@ class InvoiceEntryShowDetailView(RetrieveAPIView):
         item_instance = InvoiceEntryItem.objects.filter(ie_id_id=serializer.data['id'])
         item_serializer = InvoiceEntryItemSerializer(item_instance, many=True)
         return Response({'invoice': serializer.data, 'items': item_serializer.data}, status.HTTP_200_OK)
+
+
+class InvoiceEntryShowDetailWholesaler(GenericAPIView):
+    serializer_class = InvoiceEntrySerializer
+    queryset = InvoiceEntry.objects.all()
+    lookup_field = 'u_wholesaler_id'
+
+    def get(self, request: Request, *args, **kwargs):
+        translate(request)
+        invoice_entry = InvoiceEntry.objects.filter(u_wholesaler_id_id=self.kwargs['u_wholesaler_id'])
+        serializer = self.serializer_class(invoice_entry, many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
