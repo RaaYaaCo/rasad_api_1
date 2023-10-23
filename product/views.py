@@ -109,10 +109,15 @@ class UnitDetailView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-class ProductView(generics.ListCreateAPIView):
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializers
+    filterset_fields = ['p_name', 'pt_id', 'd_id']
+
+
+class ProductAddView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductAddSerializers
-    filterset_fields = ['p_name', 'pt_id', 'd_id']
 
     def create(self, request: Request, *args, **kwargs):
         translate(request)
@@ -127,19 +132,19 @@ class ProductView(generics.ListCreateAPIView):
 
 class ProductDetailView(generics.RetrieveUpdateAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializers
+    serializer_class = ProductAddSerializers
     lookup_field = "p_slug"
 
     def retrieve(self, request: Request, *args, **kwargs):
         translate(request)
         instance = self.get_object()
-        serializer = self.serializer_class(instance)
+        serializer = ProductSerializers(instance)
         return Response(serializer.data, status.HTTP_200_OK)
 
     def update(self, request: Request, *args, **kwargs):
         translate(request)
         instance = self.get_object()
-        serializer = self.serializer_class(instance, data=request.data)
+        serializer = ProductAddSerializers(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             serializer.save()
@@ -148,25 +153,25 @@ class ProductDetailView(generics.RetrieveUpdateAPIView):
             return Response({'msg': _('you can not register a product with the same name and degree')})
 
 
-class ProductPriceView(generics.GenericAPIView):
-    serializer_class = ProductPriceAddSerializer
+class ProductPriceView(generics.ListAPIView):
+    serializer_class = ProductPriceSerializer
     queryset = ProductPrice.objects.filter(pp_is_active=True)
+    filterset_fields = ['p_id', 'pp_price']
 
-    def get(self, request: Request):
-        translate(request)
-        instance = self.get_queryset()
-        serializer = ProductPriceSerializer(instance=instance, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+class ProductPriceAddView(generics.GenericAPIView):
+    serializer_class = ProductPriceAddSerializer
+    queryset = ProductPrice.objects.all()
 
     def post(self, request: Request):
         translate(request)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             try:
-                pervious_product_price = ProductPrice.objects.get(p_id=request.data['p_id'],
+                previous_product_price = ProductPrice.objects.get(p_id=request.data['p_id'],
                                                                   pp_is_active=True)
-                pervious_product_price.pp_is_active = False
-                pervious_product_price.save()
+                previous_product_price.pp_is_active = False
+                previous_product_price.save()
                 serializer.save()
                 return Response(data={'data': serializer.data, 'msg': _('new price registered')},
                                 status=status.HTTP_201_CREATED)
