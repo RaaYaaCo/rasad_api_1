@@ -1,5 +1,6 @@
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import Group
+from django.contrib.auth.hashers import make_password
 
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
@@ -10,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import UserSerializer, UserCodeSerializer, WholesalerStoreSerializer, WholesalerStoreCodeSerializer, \
                          OtherSerializer, OtherCodeSerializer, LoginSerializer, LoginSerializerCreateAccessToken, \
-                         LogoutSerializer
+                         LogoutSerializer, ForgetPasswordSerializer, ForgetPasswordCodeSerializer, NewPasswordSerializer
 
 from .models import User
 from .utils import code, get_tokens
@@ -43,7 +44,8 @@ class UserGenericAPIView(GenericAPIView):
         data2 = {
             'otp_code': otp_code,
                }
-        return Response(data={"Information": data1, "otp_code": data2},
+
+        return Response(data={"Information": data1, "otp_code": data2, 'msg': 'Data is stored in the session'},
                         status=status.HTTP_201_CREATED)
 
 
@@ -82,7 +84,7 @@ class UserCodeGenericAPIView(GenericAPIView):
                 data1 = {
                     'first_name': request.session['register']['first_name'],
                     'last_name': request.session['register']['last_name'],
-                    'code_melli': request.session['register']['u_code_meli'],
+                    'code_meli': request.session['register']['u_code_meli'],
                     'phone_number': request.session['register']['u_phone_number'],
                     'group': group.name
                 }
@@ -92,7 +94,7 @@ class UserCodeGenericAPIView(GenericAPIView):
                        }
                 request.session['register'].clear()
                 request.session.modified = True
-                return Response(data={'Information': data1, 'Tokens': data2},
+                return Response(data={'Information': data1, 'Tokens': data2, 'msg': 'Data is stored in the database'},
                                 status=status.HTTP_201_CREATED)
 
             return Response(data={'msg': _('The code is wrong')},
@@ -115,19 +117,19 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=False)
+        serializer.is_valid(raise_exception=True)
         request.session.get('register', {})
         request.session['register'] = serializer.data
         request.session.modified = True
         otp_code = code(length=5)
-        REDIS_OTP_CODE.set(name=serializer.validated_data['phone_number'],
+        REDIS_OTP_CODE.set(name=serializer.data['phone_number'],
                            value=otp_code,
                            ex=REDIS_OTP_CODE_TIME)
         request.session['register']['slug'] = request.session['register']['name'].replace(' ', '-')
         data1 = {
             'first_name': request.session['register']['first_name'],
             'last_name': request.session['register']['last_name'],
-            'code_melli': request.session['register']['code_meli'],
+            'code_meli': request.session['register']['code_meli'],
             'phone_number': request.session['register']['phone_number'],
             'name': request.session['register']['name'],
             'description': request.session['register']['description'],
@@ -140,7 +142,7 @@ class WholesalerStoreGenericAPIView(GenericAPIView):
         data2 = {
             'otp_code': otp_code,
                }
-        return Response(data={"Information": data1, "otp_code": data2},
+        return Response(data={'Information': data1, 'otp_code': data2, 'msg': 'Data is stored in the session'},
                         status=status.HTTP_201_CREATED)
 
 
@@ -166,6 +168,8 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
                 serializer.is_valid(raise_exception=False)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['phone_number'])
+                user.is_active = False
+                user.save()
                 group = Group.objects.get(name='فروشگاه')
                 group.user_set.add(user)
                 group.save()
@@ -180,11 +184,12 @@ class WholesalerStoreCodeGenericAPIView(GenericAPIView):
                     'location': request.session['register']['location'],
                     'license': request.session['register']['license'],
                     'postal_code': request.session['register']['postal_code'],
+                    'group': group.name,
                     'slug': request.session['register']['slug']
                 }
                 request.session['register'].clear()
                 request.session.modified = True
-                return Response(data={'Information': data},
+                return Response(data={'Information': data, 'msg': 'Data is stored in the database'},
                                 status=status.HTTP_201_CREATED)
 
             return Response(data={'msg': _('The code is wrong')},
@@ -221,12 +226,12 @@ class OtherGenericAPIView(GenericAPIView):
             'last_name': request.session['register']['last_name'],
             'code_melli': request.session['register']['u_code_meli'],
             'phone_number': request.session['register']['u_phone_number'],
-            'group': request.session['register']['group']
+            'group': request.session['register']['group'],
         }
         data2 = {
             'otp_code': otp_code,
                }
-        return Response(data={"Information": data1, "otp_code": data2},
+        return Response(data={"Information": data1, "otp_code": data2, 'msg': 'the data is stored in the session'},
                         status=status.HTTP_201_CREATED)
 
 
@@ -252,6 +257,8 @@ class OtherCodeGenericAPIView(GenericAPIView):
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
                 user = User.objects.get(u_phone_number=register['u_phone_number'])
+                user.is_active = False
+                user.save()
                 group = Group.objects.get(name=request.session['register']['group'])
                 group.user_set.add(user)
                 group.save()
@@ -260,11 +267,11 @@ class OtherCodeGenericAPIView(GenericAPIView):
                     'last_name': request.session['register']['last_name'],
                     'code_melli': request.session['register']['u_code_meli'],
                     'phone_number': request.session['register']['u_phone_number'],
-                    'group': request.session['register']['group']
+                    'group': request.session['register']['group'],
                 }
                 request.session['register'].clear()
                 request.session.modified = True
-                return Response(data={'Information': data},
+                return Response(data={'Information': data, 'msg': 'the data is stored in the database'},
                                 status=status.HTTP_201_CREATED)
 
             return Response(data={'msg': _('The code is wrong')},
@@ -290,7 +297,7 @@ class LoginGenericAPIView(GenericAPIView):
         try:
             user = User.objects.get(u_phone_number=request.data['u_phone_number'])
             group = Group.objects.get(user=user)
-            if user.check_password(request.data['password']):
+            if user.check_password(request.data['password']) and user.is_active == True:
                 tokens = get_tokens(user)
                 access_token = tokens['Access']
                 refresh_token = tokens['Refresh']
@@ -301,7 +308,7 @@ class LoginGenericAPIView(GenericAPIView):
                         'last_name': user.last_name,
                         'code_meli': user.u_code_meli,
                         'phone_number': user.u_phone_number,
-                        'group': group.name
+                        'group': group.name,
                     },
                     'token': {
                         "access": access_token,
@@ -309,6 +316,7 @@ class LoginGenericAPIView(GenericAPIView):
                     }
                 }
                 return Response(data=data, status=status.HTTP_201_CREATED)
+            return Response({'msg': _('You are not allowed to enter')})
         except Exception as e:
             error_message = str(e)
             return Response(data={'msg': error_message})
@@ -348,7 +356,7 @@ class LoginAPIViewCreateAccess(GenericAPIView):
             return Response(data=data, status=status.HTTP_201_CREATED)
         except Exception as e:
             error_message = str(e)
-            return Response({'message': 'Token is expired', 'error': error_message})
+            return Response({'message': _('Token is expired'), 'error': error_message})
 
 # ---------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
@@ -365,6 +373,84 @@ class LogoutAPIView(GenericAPIView):
         refresh_token = request.data['refresh_token']
         if REDIS_JWT_TOKEN.exists(refresh_token):
             REDIS_JWT_TOKEN.delete(refresh_token)
-            return Response({"message": "You are logged out successfully"})
+            return Response({"message": _("You are logged out successfully")})
         else:
-            return Response({"message": "There is no refresh token in redis"})
+            return Response({"message": _("There is no refresh token in redis")})
+
+# ---------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------
+
+
+class ForgetPasswordAPIView(GenericAPIView):
+    """
+        This view is for creating the otp code for creating the new password.
+    """
+    serializer_class = ForgetPasswordSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid()
+        request.session.get('forget', {})
+        request.session['forget'] = serializer.data
+        request.session.modified = True
+        otp_code = code(length=5)
+        REDIS_OTP_CODE.set(name=serializer.validated_data['phone_number'],
+                           value=otp_code,
+                           ex=REDIS_OTP_CODE_TIME)
+        data = {
+            'otp_code': otp_code,
+        }
+        return Response(data={"otp_code": data}, status=status.HTTP_201_CREATED)
+
+
+class ForgetPasswordCodeAPIView(GenericAPIView):
+    """
+        This view is for checking the otp code for confirming the right user.
+    """
+    serializer_class = ForgetPasswordCodeSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        register = request.session.get('forget')  # Value of session's key.
+        try:
+            otp_code = REDIS_OTP_CODE.get(register['phone_number'])
+            otp_code = otp_code.decode('utf-8')
+            if otp_code == serializer.validated_data['otp_code']:
+                data = {
+                    'phone_number': request.session['forget']['phone_number'],
+                    'msg': _('The code is correct.')
+                }
+                return Response(data=data, status=status.HTTP_201_CREATED)
+
+            return Response(data={'msg': _('The code is wrong')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            error_massage = str(e)
+            return Response(data={'msg': _('There is no such code in redis'), 'error': error_massage},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class NewPasswordSerializerAPIView(GenericAPIView):
+    """
+        This view is for creating new password.
+    """
+    serializer_class = NewPasswordSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        register = request.session.get('forget')  # Value of session's key.
+        try:
+            user = User.objects.get(u_phone_number=register['phone_number'])
+            user.password = make_password(serializer.data['new_password_1'])
+            user.save()
+            request.session['forget'].clear()
+            request.session.modified = True
+            data = {
+                'msg': _('The new password is created successfully'),
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            error_massage = str(e)
+            return Response(data={'error': error_massage}, status=status.HTTP_400_BAD_REQUEST)
